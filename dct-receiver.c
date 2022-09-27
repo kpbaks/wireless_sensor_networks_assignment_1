@@ -12,7 +12,6 @@
 
 static struct simple_udp_connection udp_conn;
 
-static uint8_t rx_buffer[UDP_MSGLEN] = {0};
 
 // static float y[L * M / N];
 
@@ -43,16 +42,6 @@ static const dct_block_t* idct_a_block(dct_block_t xi) {
 	return decompressed_block;
 }
 
-static void append_block_to_output_file(const char *filename, dct_block_t x) {
-	FILE *f = fopen(filename, 'a');
-	if (f != NULL) {
-		for (int i = 0; i < L; ++i) {
-			fprintf(f, "%.3f\n", x[i]);
-		}
-	}
-
-	fclose(f);
-}
 
 static void udp_rx_callback(struct simple_udp_connection *c,
 							const uip_ipaddr_t *sender_addr,

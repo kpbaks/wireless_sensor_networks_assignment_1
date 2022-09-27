@@ -22,7 +22,6 @@ typedef float dct_block_t[L];
 typedef float compressed_dct_block_t[M];
 
 typedef float signal_t[N];
-
 typedef float dct_comprssed_signal_t[COMPRESED_DATA_LENGTH];
 
 /// Performs the calculation y = Mx
@@ -51,6 +50,39 @@ const float** gen_H() {
 	}
 
 	return &H_dynamic;
+}
+
+
+static signal_t decompressed_signal;
+
+/// Apply Inverse Discrete Cosine Transform to a DCT signal
+/// The resulting decompressed signal is returned as a pointer to a static buffer
+/// 'decompressed_signal'
+signal_t idct(dct_comprssed_signal_t compressed_signal) {
+	dct_block_t xi;
+	dct_block_t yi;
+	dct_comprssed_signal_t yM;
+
+	const uint8_t chunk_size_in_bytes = L * sizeof(float);
+	const uint8_t compressed_chunk_size_in_bytes = M * sizeof(float);
+
+	// iterate over each chunck xi of size M of the compressed_signal
+	// and transform it.
+	for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
+		// yi[:M] = compressed_signal[i:(i + M)]
+		memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
+		 // pad yi[M:] with zeros
+		for (int j = M; j < L; ++j) {
+			 yi[j] = 0.0f;
+		}
+
+		// xi = H_inv * yi
+		matmul(H_inv, yi, xi);
+		// copy xi chunk into the decompressed_signal buffer
+		memcpy(decompressed_signal + i, xi, L);
+	}
+
+	return decompressed_signal;
 }
 
 #endif // _DCT_H_
