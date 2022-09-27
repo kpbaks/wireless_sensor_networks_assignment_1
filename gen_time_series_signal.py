@@ -1,6 +1,5 @@
 import sys
 from math import cos, pi, sqrt
-from pprint import pp
 
 import numpy as np
 

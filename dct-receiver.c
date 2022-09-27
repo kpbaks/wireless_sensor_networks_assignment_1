@@ -3,7 +3,6 @@
 #include "net/netstack.h"
 // #include "cfs/cfs.h"
 // #include "cfs/cfs-coffee.h"
-#include <stdio.h>
 
 #include "sys/log.h"
 #define LOG_MODULE "IDCT"
@@ -11,12 +10,9 @@
 
 #include "dct.h"
 
-PROCESS(idct, "Inverse Discreet Cosine Transform Process");
-AUTOSTART_PROCESSES(&idct);
-
 static struct simple_udp_connection udp_conn;
 
-static uint8_t rx_buffer[MSGLEN] = {0};
+static uint8_t rx_buffer[UDP_MSGLEN] = {0};
 
 // static float y[L * M / N];
 
@@ -63,7 +59,7 @@ static void udp_rx_callback(struct simple_udp_connection *c,
 							uint16_t sender_port,
 							const uip_ipaddr_t *receiver_addr,
 							uint16_t receiver_port, const uint8_t *data,
-							uint16_t datalen) {
+uint16_t datalen) {
 	unsigned count = *(unsigned *)data;
 	LOG_INFO("Received request %u (Max MAC Tx: %d) from ", count,
 		  uipbuf_get_attr(UIPBUF_ATTR_MAX_MAC_TRANSMISSIONS));
@@ -73,9 +69,7 @@ static void udp_rx_callback(struct simple_udp_connection *c,
 
 	dct_block_t xi;
 
-
 	const uint16_t compressed_block_size = M * sizeof(float);
-
 
 	for(int i =0; i < datalen / compressed_block_size; ++i) {
 		int offset = i * sizeof(float);
@@ -93,9 +87,14 @@ static void udp_rx_callback(struct simple_udp_connection *c,
 
 }
 
+// CONTIKI-NG process 
+PROCESS(idct, "Inverse Discreet Cosine Transform Process");
+AUTOSTART_PROCESSES(&idct);
+
 PROCESS_THREAD(idct, ev, data) {
 
 	PROCESS_BEGIN();
+
 	// Initialize DAG root
 	NETSTACK_ROUTING.root_start();
 
