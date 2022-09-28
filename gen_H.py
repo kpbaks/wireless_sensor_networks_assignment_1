@@ -43,3 +43,7 @@ if __name__ == "__main__":
     H_inv = np.linalg.inv(H)
     H_inv_as_C_array_literal = fmt_np_array_as_C_array_literal(H_inv)
     print(H_inv_as_C_array_literal)
+    y = H @ np.array([1, 2, 3, 4, 5, 6, 7, 8]).T
+    print(y)
+
+

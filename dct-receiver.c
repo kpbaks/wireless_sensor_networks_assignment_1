@@ -13,7 +13,7 @@
 static struct simple_udp_connection udp_conn;
 
 
-// static float y[L * M / N];
+// static float y[L * M / SIGNAL_LENGTH];
 
 // float *idct(dct_comprssed_signal_t signal) {
 // 	float xi[L];
@@ -21,7 +21,7 @@ static struct simple_udp_connection udp_conn;
 // 	float yM[M];
 // 	// iterate over each chunck xi of size L of the signal
 // 	// and transform it.
-// 	for (int i = 0; i < N; i += L) {
+// 	for (int i = 0; i < SIGNAL_LENGTH; i += L) {
 // 		// xi = signal[i:(i + L)]
 // 		memcpy(xi, signal + i, L);
 // 		// yi = H * xi

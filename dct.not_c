@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "dct.h"
+
+void write_signal_to_dat_file(const char * filename, const float* signal, const int len) {
+	FILE * f = fopen(filename, "w");
+	if (f == NULL) {
+		return;
+	}
+
+	for(int i = 0; i < len; i++) {
+		fprintf(f, "%d %f\n", i, (double) signal[i]);
+	}
+
+	fclose(f);
+}
+
+int main(int argc, char **argv) {
+
+	float x[8] = {1,2,3,4,5,6,7,8};
+	float y[8] = {0};
+
+	matmul(H,x,y);
+printf("y is \n");
+
+	for (int i = 0; i < 8; i++) {
+	printf("%f\n",y[i]);
+
+	}
+
+	dct(test_signal); // modifies compressed_signal
+	idct(compressed_signal);// modifies decompressed_signal
+	
+	/* printf("test_signal\n"); */
+	/* for (int i = 0; i < 256 * 2; i++) { */
+	/* 	printf("%f\n", test_signal[i]); */
+	/* } */
+	/* printf("\n\n"); */
+
+	write_signal_to_dat_file("test_signal.dat", test_signal, 512);
+
+	
+	/* printf("compressed_signal\n"); */
+	/* for (int i = 0; i < 256; i++) { */
+	/* 	printf("%f\n", compressed_signal[i]); */
+	/* } */
+	/* printf("\n"); */
+
+	write_signal_to_dat_file("compressed_signal.dat", compressed_signal, 256);
+	
+	/* printf("decompressed_signal\n"); */
+	/* for (int i = 0; i < 512; i++) { */
+	/* 	printf("%f\n", decompressed_signal[i]); */
+	/* } */
+	/* printf("\n"); */
+
+	write_signal_to_dat_file("decompressed_signal.dat", decompressed_signal, 512);
+	
+	return 0;
+}
