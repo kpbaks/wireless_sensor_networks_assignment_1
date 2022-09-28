@@ -56,6 +56,7 @@ void dct(const signal_t signal) {
 	// iterate over each chunck xi of size L of the signal
 	// and transform it.
 	for (int i = 0; i < SIGNAL_LENGTH; i += L) {
+		LOG_INFO("i = %d", i);
 		// xi = signal[i:(i + L)]
 		memcpy(xi, signal + i, chunk_size_in_bytes);
 		// yi = H * xi
@@ -64,50 +65,37 @@ void dct(const signal_t signal) {
 		memcpy(yM, yi, compressed_chunk_size_in_bytes);
 		// y[M * (i / L):(M * (i / L) + M)] = yM
 		int offset = M * (i / L); // 0, M, 2M, 3M ...
+		LOG_INFO("offset = %d", offset);
 		memcpy(compressed_signal + offset, yM, compressed_chunk_size_in_bytes);
 	}
 }
 
-static signal_t decompressed_signal;
+// static signal_t decompressed_signal;
 
-/// Apply Inverse Discrete Cosine Transform to a DCT signal
-/// The resulting decompressed signal is returned as a pointer to a static
-/// buffer 'decompressed_signal'
-void idct(dct_comprssed_signal_t compressed_signal) {
-	dct_block_t xi;
-	dct_block_t yi;
+// /// Apply Inverse Discrete Cosine Transform to a DCT signal
+// /// The resulting decompressed signal is returned as a pointer to a static
+// /// buffer 'decompressed_signal'
+// void idct(dct_comprssed_signal_t compressed_signal) {
+// 	dct_block_t xi;
+// 	dct_block_t yi;
 
-	const uint8_t chunk_size_in_bytes = L * sizeof(float);
+// 	const uint8_t chunk_size_in_bytes = L * sizeof(float);
 
-	// iterate over each chunck xi of size M of the compressed_signal
-	// and transform it.
-	for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
-		// yi[:M] = compressed_signal[i:(i + M)]
-		memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
-		// pad yi[M:] with zeros
-		for (int j = M; j < L; ++j) {
-			yi[j] = 0.0f;
-		}
-
-		// xi = H_inv * yi
-		matmul(H_inv, yi, xi);
-		printf("xi = ");
-		for (int j = 0; j < L; ++j) {
-			printf("%f ", xi[j]);
-
-		}
-		printf("\n");
-		printf("yi = ");
-		for (int j = 0; j < L; ++j) {
-			printf("%f ", yi[j]);
-
-		}
-		printf("\n");
-		// copy xi chunk into the decompressed_signal buffer
-		int offset = COMPRESSION_RATIO * i;
-		printf("offset = %d\n", offset);
-		memcpy(decompressed_signal + offset, xi, chunk_size_in_bytes);
-	}
-}
+// 	// iterate over each chunck xi of size M of the compressed_signal
+// 	// and transform it.
+// 	for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
+// 		// yi[:M] = compressed_signal[i:(i + M)]
+// 		memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
+// 		// pad yi[M:] with zeros
+// 		for (int j = M; j < L; ++j) {
+// 			yi[j] = 0.0f;
+// 		}
+// 		// xi = H_inv * yi
+// 		matmul(H_inv, yi, xi);
+// 		// copy xi chunk into the decompressed_signal buffer
+// 		int offset = COMPRESSION_RATIO * i;
+// 		memcpy(decompressed_signal + offset, xi, chunk_size_in_bytes);
+// 	}
+// }
 
 #endif // _DCT_H_

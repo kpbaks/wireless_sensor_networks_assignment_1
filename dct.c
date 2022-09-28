@@ -7,22 +7,29 @@
 #include "dct.h"
 
 // static void write_dt_of_dct_and_idct_to_file(const char *filename, clock_time_t dt_compression, clock_time_t dt_decompression) {
-static void write_dt_of_dct_and_idct_to_file( clock_time_t dt_compression, clock_time_t dt_decompression) {
-	// int fd = cfs_open(filename,CFS_APPEND);
-	// cfs_write(fd, sprintf("%ld %ld\n", dt_compression, dt_decompression));
-	// cfs_close(fd);
-	LOG_INFO("timestamp: %ld %ld", dt_compression, dt_decompression);
+// static void write_dt_of_dct_and_idct_to_file( clock_time_t dt_compression, clock_time_t dt_decompression) {
+// 	// int fd = cfs_open(filename,CFS_APPEND);
+// 	// cfs_write(fd, sprintf("%ld %ld\n", dt_compression, dt_decompression));
+// 	// cfs_close(fd);
+// 	LOG_INFO("timestamp: %ld %ld", dt_compression, dt_decompression);
+// }
+// static void write_decompressed_signal_to_file( signal_t signal) {
+// 	// int fd = cfs_open(filename,CFS_WRITE);
+// 	// cfs_write(fd, (const void *) signal, sizeof(signal_t));
+// 	// cfs_close(fd);
+// 	LOG_INFO("decompressed_signal: ");
+// 	for (int i = 0; i < SIGNAL_LENGTH; ++i) {
+// 		LOG_INFO_("%f ", (double) signal[i]);
+// 	}
+// 	LOG_INFO_("\n");
+// }
+
+void log_float(float x) {
+	int integral = (int) x;
+	float fractional =  (x - integral) * 100;
+	LOG_INFO("%d.%03u ", integral, (unsigned int) fractional);
 }
-static void write_decompressed_signal_to_file( signal_t signal) {
-	// int fd = cfs_open(filename,CFS_WRITE);
-	// cfs_write(fd, (const void *) signal, sizeof(signal_t));
-	// cfs_close(fd);
-	LOG_INFO("decompressed_signal: ");
-	for (int i = 0; i < SIGNAL_LENGTH; ++i) {
-		LOG_INFO_("%f ", (double) signal[i]);
-	}
-	LOG_INFO_("\n");
-}
+
 
 PROCESS(assignment, "Discreet Cosine Transform Process");
 AUTOSTART_PROCESSES(&assignment);
@@ -52,16 +59,40 @@ PROCESS_THREAD(assignment, ev, data) {
 
 	LOG_INFO("Applying IDCT to compressed signal\n");
 	t_start = clock_time();
-	idct(compressed_signal);// modifies decompressed_signal
+
+	LOG_INFO("DECOMPRESSED SIGNAL:\t");
+		dct_block_t xi;
+		dct_block_t yi;
+
+		const uint8_t chunk_size_in_bytes = L * sizeof(float);
+
+		// iterate over each chunck xi of size M of the compressed_signal
+		// and transform it.
+		for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
+			// yi[:M] = compressed_signal[i:(i + M)]
+			memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
+			// pad yi[M:] with zeros
+			for (int j = M; j < L; ++j) {
+				yi[j] = 0.0f;
+			}
+			// LOG_INFO("%d", i);
+			// xi = H_inv * yi
+			matmul(H_inv, yi, xi);
+			// print out each chunk in one line to then capture in the console ...
+			for (int j = 0; j < L; ++j) {
+				log_float(xi[j]);
+				// LOG_INFO_("%f ", (double) xi[j]);
+				// LOG_INFO_("%f ",  xi[j]);
+				// printf("%f ", (double) xi[j]);
+			}
+		}
+
 	t_end = clock_time();
 	dt_decompression = t_end - t_start;
 	LOG_INFO("IDCT complete\n");
 
-	// write_decompressed_signal_to_file(sprintf("decompressed_signal_N_%d_L_%d_M_%d_%d.dat", SIGNAL_LENGTH, L, M, count), signal);
-	LOG_INFO("Writing compressed signal to console:\n");
-	write_decompressed_signal_to_file(decompressed_signal);
+	LOG_INFO("TIMESTAMP: %ld %ld", dt_compression, dt_decompression);
 	LOG_INFO("Writing dt of compression and decompression signal to console:\n");
-	write_dt_of_dct_and_idct_to_file( dt_compression, dt_decompression);
 
 	etimer_reset(&periodic_timer);
 
