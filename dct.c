@@ -24,77 +24,87 @@
 // 	LOG_INFO_("\n");
 // }
 
-void log_float(float x) {
-	int integral = (int) x;
-	float fractional =  (x - integral) * 100;
-	LOG_INFO("%d.%03u ", integral, (unsigned int) fractional);
-}
+// void log_float(float x) {
+// 	int integral = (int) x;
+// 	float fractional =  (x - integral) * 100;
+// 	LOG_INFO("%d.%03u ", integral, (unsigned int) fractional);
+// }
 
 
 PROCESS(assignment, "Discreet Cosine Transform Process");
 AUTOSTART_PROCESSES(&assignment);
 
 PROCESS_THREAD(assignment, ev, data) {
-	static struct etimer periodic_timer;
+	// static struct etimer periodic_timer;
 
 	PROCESS_BEGIN();
 
 	clock_init(); // init timer lib
 
-	etimer_set(&periodic_timer, CLOCK_SECOND * 10);
+	// etimer_set(&periodic_timer, CLOCK_SECOND * 10);
 
 	clock_time_t t_start, t_end, dt_compression, dt_decompression; 
 
-	LOG_INFO("Waiting for timer to timeout\n");
-	PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
-	LOG_INFO("Timer expired\n");
+	// LOG_INFO("Waiting for timer to timeout\n");
+	// PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&periodic_timer));
+	// LOG_INFO("Timer expired\n");
 
 	// FIX: it crashes after this line
-	LOG_INFO("Applying DCT to signal\n");
+	// LOG_INFO("Applying DCT to signal\n");
 	t_start = clock_time();
 	dct(test_signal); // modifies compressed_signal
 	t_end = clock_time();
 	dt_compression = t_end - t_start;
-	LOG_INFO("DCT complete\n");
 
-	LOG_INFO("Applying IDCT to compressed signal\n");
+	for (int i = 0; i < COMPRESED_DATA_LENGTH; ++i) {
+		float xi = compressed_signal[i];
+		int integral = (int) xi; 
+		float fractional =  (xi - integral) * 100; 
+		LOG_INFO_("%d.%03u ", integral, (unsigned int) fractional);
+	}
+	// LOG_INFO("DCT complete\n");
+
+	// LOG_INFO("Applying IDCT to compressed signal\n");
 	t_start = clock_time();
 
-	LOG_INFO("DECOMPRESSED SIGNAL:\t");
-		dct_block_t xi;
-		dct_block_t yi;
+	// LOG_INFO("DECOMPRESSED SIGNAL:\t");
+	// dct_block_t xi;
+	// dct_block_t yi;
 
-		const uint8_t chunk_size_in_bytes = L * sizeof(float);
+	// const uint8_t chunk_size_in_bytes = L * sizeof(float);
 
-		// iterate over each chunck xi of size M of the compressed_signal
-		// and transform it.
-		for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
-			// yi[:M] = compressed_signal[i:(i + M)]
-			memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
-			// pad yi[M:] with zeros
-			for (int j = M; j < L; ++j) {
-				yi[j] = 0.0f;
-			}
-			// LOG_INFO("%d", i);
-			// xi = H_inv * yi
-			matmul(H_inv, yi, xi);
-			// print out each chunk in one line to then capture in the console ...
-			for (int j = 0; j < L; ++j) {
-				log_float(xi[j]);
-				// LOG_INFO_("%f ", (double) xi[j]);
-				// LOG_INFO_("%f ",  xi[j]);
-				// printf("%f ", (double) xi[j]);
-			}
-		}
+	// // iterate over each chunck xi of size M of the compressed_signal
+	// // and transform it.
+	// for (int i = 0; i < COMPRESED_DATA_LENGTH; i += M) {
+	// 	// yi[:M] = compressed_signal[i:(i + M)]
+	// 	memcpy(yi, compressed_signal + i, chunk_size_in_bytes);
+	// 	// pad yi[M:] with zeros
+	// 	for (int j = M; j < L; ++j) {
+	// 		yi[j] = 0.0f;
+	// 	}
+	// 	// LOG_INFO("%d", i);
+	// 	// xi = H_inv * yi
+	// 	matmul(H_inv, yi, xi);
+	// 	// print out each chunk in one line to then capture in the console ...
+	// 	for (int j = 0; j < L; ++j) {
+
+	// 		// int integral = (int) xi[j]; 
+	// 		// float fractional =  (xi[j] - integral) * 100; 
+	// 		// LOG_INFO("%d.%03u ", integral, (unsigned int) fractional);
+	// 		// LOG_INFO_("%f ", (double) xi[j]);
+	// 		// LOG_INFO_("%f ",  xi[j]);
+	// 		// printf("%f ", (double) xi[j]);
+	// 	}
+	// }
 
 	t_end = clock_time();
 	dt_decompression = t_end - t_start;
-	LOG_INFO("IDCT complete\n");
+	// LOG_INFO("IDCT complete\n");
 
 	LOG_INFO("TIMESTAMP: %ld %ld", dt_compression, dt_decompression);
-	LOG_INFO("Writing dt of compression and decompression signal to console:\n");
+	// LOG_INFO("Writing dt of compression and decompression signal to console:\n");
 
-	etimer_reset(&periodic_timer);
+	// etimer_reset(&periodic_timer);
 
 	PROCESS_END();
 }

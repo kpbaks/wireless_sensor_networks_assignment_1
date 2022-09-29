@@ -3,11 +3,24 @@ from math import cos, pi, sqrt
 
 import numpy as np
 
-p = lambda *args: print(*args)
+p = lambda *args, **kvargs: print(*args, **kvargs)
+
+
+def gen_dct_matrix(L: int):
+    delta = lambda k: 1 if k == 0 else 0
+    H = np.zeros((L, L))
+    for k in range(L):
+        for n in range(L):
+            H[k, n] = sqrt((2 - delta(k)) / L) * cos((pi / L) * (n + 1 / 2) * k)
+    return H
+
+
+def gen_inverse_dct_matrix(L: int):
+    return np.linalg.inv(gen_dct_matrix(L))
 
 
 def fmt_np_array_as_C_array_literal(arr: np.ndarray) -> str:
-    row, col = arr.shape
+    row, _ = arr.shape
     fmt_row = (
         lambda row_idx: "\t{"
         + ",".join(
@@ -33,17 +46,14 @@ if __name__ == "__main__":
         for n in range(L):
             H[k, n] = sqrt((2 - delta(k)) / L) * cos((pi / L) * (n + 1 / 2) * k)
 
+    H = gen_dct_matrix(L)
+
     p(f"#define L {L}\n")
     print(f"static const float H[{L}][{L}] = ", end="")
     H_as_C_array_literal = fmt_np_array_as_C_array_literal(H)
     print(H_as_C_array_literal)
-    p()
 
     print(f"static const float H_inv[{L}][{L}] = ", end="")
-    H_inv = np.linalg.inv(H)
+    H_inv = gen_inverse_dct_matrix(L)
     H_inv_as_C_array_literal = fmt_np_array_as_C_array_literal(H_inv)
     print(H_inv_as_C_array_literal)
-    y = H @ np.array([1, 2, 3, 4, 5, 6, 7, 8]).T
-    print(y)
-
-

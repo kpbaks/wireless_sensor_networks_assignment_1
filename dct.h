@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// used for the part where H has to be generated dynamically
-// add -lm to the Makefile to link against it
-// #include <math.h>
-
 #include "H_and_H_inv.h" // defines L
 #include "test_signal.h" // defines N
 
@@ -56,7 +52,7 @@ void dct(const signal_t signal) {
 	// iterate over each chunck xi of size L of the signal
 	// and transform it.
 	for (int i = 0; i < SIGNAL_LENGTH; i += L) {
-		LOG_INFO("i = %d", i);
+		// LOG_INFO("i = %d", i);
 		// xi = signal[i:(i + L)]
 		memcpy(xi, signal + i, chunk_size_in_bytes);
 		// yi = H * xi
@@ -65,7 +61,7 @@ void dct(const signal_t signal) {
 		memcpy(yM, yi, compressed_chunk_size_in_bytes);
 		// y[M * (i / L):(M * (i / L) + M)] = yM
 		int offset = M * (i / L); // 0, M, 2M, 3M ...
-		LOG_INFO("offset = %d", offset);
+		// LOG_INFO("offset = %d", offset);
 		memcpy(compressed_signal + offset, yM, compressed_chunk_size_in_bytes);
 	}
 }
