@@ -8,24 +8,24 @@
 #include "H_and_H_inv.h" // defines L
 #include "test_signal.h" // defines N
 
-#define M 4 // compression ratio
+#define M 6
 
 // #define COMPRESSION_RATIO = (L / M) // e.g. 8 / 4 = 2
-#define COMPRESSION_RATIO 2 // e.g. 8 / 4 = 2
+// #define COMPRESSION_RATIO 2 // e.g. 8 / 4 = 2
 // #define COMPRESED_DATA_LENGTH  ((M * N) / L) // e.g. (4 * 512) / 8 = 512 / 2
 // = 256
-#define COMPRESED_DATA_LENGTH 256 // e.g. (4 * 512) / 8 = 512 / 2 = 256
+#define COMPRESED_DATA_LENGTH ((M * SIGNAL_LENGTH) / L) // e.g. (4 * 512) / 8 = 512 / 2 = 256
 #define COMPRESED_DATA_LENGTH_IN_BYTES COMPRESED_DATA_LENGTH * sizeof(float)
 
 // typedef float dct_block_t[L];
 typedef float dct_block_t[8];
 // typedef float compressed_dct_block_t[M];
-typedef float compressed_dct_block_t[4];
+typedef float compressed_dct_block_t[M];
 
 // typedef float signal_t[N];
-typedef float signal_t[512];
-// typedef float dct_comprssed_signal_t[COMPRESED_DATA_LENGTH];
-typedef float dct_comprssed_signal_t[256];
+typedef float signal_t[SIGNAL_LENGTH];
+typedef float dct_comprssed_signal_t[COMPRESED_DATA_LENGTH];
+// typedef float dct_comprssed_signal_t[256];
 
 /// Performs the calculation y = Mx
 // void matmul{const float M[L][L], const float x[L], float y[L]} {

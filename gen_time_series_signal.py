@@ -24,11 +24,23 @@ def fmt_nparray_as_C_array_literal(arr: np.ndarray) -> str:
 
 if __name__ == "__main__":
     argc = len(sys.argv)
-    N = 512 if argc == 1 else sys.argv[1]
-    N = int(N)
+    if argc != 3:
+        print(
+            """
+usage: ./script.py <N: int> <c|dat: str>
+        """,
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    N = int(sys.argv[1])
 
     signal = gen_test_signal(N)
 
-    p(f"#define SIGNAL_LENGTH {N}\n")
-    p(f"static const float test_signal[{N}] = ", end="")
-    p(fmt_nparray_as_C_array_literal(signal) + ";")
+    if sys.argv[2] == "c":
+        p(f"#define SIGNAL_LENGTH {N}\n")
+        p(f"static const float test_signal[{N}] = ", end="")
+        p(fmt_nparray_as_C_array_literal(signal) + ";")
+    elif sys.argv[2] == "dat":
+        for x in signal:
+            p(f"{x:.5f}")

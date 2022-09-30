@@ -37,35 +37,6 @@ def idct(L, M, compressed_data):
 
     return decompressed_data
 
-    # # pp({"compressed_data": compressed_data})
-    # p("compressed_data length =", len(compressed_data))
-
-    # N = len(compressed_data)
-
-    # zeros = np.zeros((M, N // M))
-    # # zeros[:M, :] = compressed_data.reshape(M, N // M)
-    # compressed_data = compressed_data.reshape(M, N // M)
-    # Y = np.vstack((compressed_data, zeros))
-    # # Y = zeros
-    # p("Y[:,0]", Y[:, 0])
-
-    # pp({"shape(Y)": np.shape(Y)})
-    # X = H_inv @ Y
-    # return X.flatten()
-
-    # for i in range((len(compressed_data) // M) + 1):
-    #     p(i)
-    #     # for block in np.split(compressed_data, M):
-    #     block = compressed_data[i * M : (i + 1) * M]
-    #     p("len(block) =", len(block))
-    #     # print(block)
-    #     M_zeros = np.zeros(M)
-    #     block_padded_with_zeros = np.array(list(block) + list(M_zeros))
-    #     xi = H_inv @ block_padded_with_zeros
-    #     # pp({"len(xi)": block_padded_with_zeros, "xi": xi})
-    #     decompressed_data = decompressed_data + list(xi)
-
-    # return decompressed_data
 
 if __name__ == "__main__":
     argv = sys.argv
@@ -87,7 +58,10 @@ usage: ./script.py <N: int> <L: int> <M: int> <compressed_data_dat_file: filepat
     decompressed_data_dat_file = sys.argv[5]
 
     compressed_data = read_dat_file(compressed_data_dat_file)
+    p('compressed_data:', compressed_data)
     decompressed_data = idct(L, M, compressed_data)
+
+    # p(decompressed_data)
 
     p('wrote decompressed data to ' + decompressed_data_dat_file)
     write_dat_file(decompressed_data_dat_file, list(decompressed_data))
