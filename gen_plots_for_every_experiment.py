@@ -3,9 +3,9 @@
 import re
 import sys
 from pathlib import Path
-import math
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from idct import read_dat_file
 
@@ -38,8 +38,8 @@ usage: ./script.py <directory_of_experiments_folder: str>
         ):
             continue
 
-        m = re.match(r'N([0-9]+)-L([0-9]+)-M([0-9]+)', str(d).split('/')[1]);
-        
+        m = re.match(r"N([0-9]+)-L([0-9]+)-M([0-9]+)", str(d).split("/")[1])
+
         if not m:
             p(f"""{str(d)} does NOT match expected dir name.""", file=sys.stderr)
             sys.exit(1)
@@ -53,20 +53,24 @@ usage: ./script.py <directory_of_experiments_folder: str>
 
         fig, ax = plt.subplots()
 
-        ax.plot(n, test_signal)
-        ax.plot(n, decompressed_data)
-
-        abs = lambda x: x if x > 0 else -x
-            
+        ax.plot(n, test_signal, "b")
+        ax.plot(n, decompressed_data, "r+")
 
         tae = sum([abs(x - y) for x, y in zip(test_signal, decompressed_data)])
-        mtae = sum([abs(x - y) for x, y in zip(test_signal, decompressed_data)]) / len(test_signal)
+        mtae = sum([abs(x - y) for x, y in zip(test_signal, decompressed_data)]) / len(
+            test_signal
+        )
+        test_signal = np.array(test_signal)
+        decompressed_data = np.array(decompressed_data)
+        mse = (np.square(test_signal - decompressed_data)).mean(axis=None)
 
-        ax.set_title(f'N = {N}, L = {L}, M = {M}, TAE = {tae:.2f}, MTAE = {mtae:.2f}')
+        ax.set_title(
+            f"N = {N}, L = {L}, M = {M}, MSE = {mse:.2f}"
+        )
         ax.grid(True)
         ax.legend(["signal", "decompressed signal"], loc="lower right")
-        ax.set_xlabel('samples')
-        ax.set_ylabel('N/A')
+        ax.set_xlabel("samples")
+        ax.set_ylabel("N/A")
         plt.savefig(d / "plot.png")
         plt.savefig(d / "plot.svg")
         ax.clear()
